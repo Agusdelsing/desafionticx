@@ -131,6 +131,62 @@
             font-size: 0.9rem;
             color: #7f8c8d;
         }
+        /* Estilos para el modal de reglas */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #7f8c8d;
+            transition: color 0.2s ease;
+        }
+        .modal-close-btn:hover {
+            color: #34495e;
+        }
+        .rules-section h3 {
+            font-weight: bold;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #34495e;
+            font-size: 1.15rem;
+        }
+        .rules-section ul {
+            list-style: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .rules-section ol {
+            list-style: decimal;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen bg-gray-100 p-4">
@@ -186,11 +242,70 @@
             </div>
             <!-- Botón para reiniciar el juego al final -->
             <button id="btnRestartGame" class="btn btn-primary hidden">Reiniciar Juego</button>
+            <!-- Nuevo botón para mostrar las reglas -->
+            <button id="btnShowRules" class="btn btn-primary mt-4">Ver Reglas del Juego 📜</button>
         </div>
 
         <!-- Pie de página con la información del autor -->
         <div class="footer-text">
-            Pensado & Desarrollado por Agustin del Canto . Profesor NTICX . 2025
+            Pensado & Desarrollado por Agustín del Canto . Profesor NTICX . 2025
+        </div>
+    </div>
+
+    <!-- Modal para las reglas del juego -->
+    <div id="rulesModal" class="modal hidden">
+        <div class="modal-content">
+            <button id="btnCloseRules" class="modal-close-btn">&times;</button>
+            <h2 class="text-2xl font-bold mb-4 text-blue-800">Reglas del Juego: Desafío NTICX</h2>
+            <div id="rulesContent" class="text-left text-gray-700 text-sm leading-relaxed">
+                <div class="rules-section">
+                    <h3>Objetivo:</h3>
+                    <p>Demostrar quién domina más las Nuevas Tecnologías de la Información y la Conectividad.</p>
+                </div>
+                <div class="rules-section">
+                    <h3>Participantes:</h3>
+                    <p>Dividir el salón en dos equipos (Equipo A y Equipo B).</p>
+                </div>
+                <div class="rules-section">
+                    <h3>Materiales:</h3>
+                    <ul>
+                        <li>Preguntas preparadas.</li>
+                        <li>Un cronómetro o temporizador (la aplicación lo tiene integrado).</li>
+                        <li>Pizarra o marcador para anotar los puntos (la aplicación lo tiene integrado).</li>
+                        <li>(Opcional) Un teléfono móvil por equipo para el comodín "Teléfono Abierto".</li>
+                    </ul>
+                </div>
+                <div class="rules-section">
+                    <h3>Reglas del Juego:</h3>
+                    <ol>
+                        <li>**Turnos:** Se sortea qué equipo comienza. Los turnos se alternan entre el Equipo A y el Equipo B.</li>
+                        <li>**Rondas de Preguntas:**
+                            <ul>
+                                <li>Se asigna la pregunta a un jugador de equipo en turno. El resto del equipo puede ayudar a debatir la respuesta, **pero solo el jugador asignado puede contestar en voz alta**.</li>
+                                <li>Tienen <strong>30 segundos</strong> para discutir y dar una respuesta final.</li>
+                                <li>Si responden correctamente dentro del tiempo, ganan <strong>10 puntos</strong>.</li>
+                                <li>Si responden incorrectamente o no responden en el tiempo, la pregunta pasa al equipo contrario.</li>
+                                <li>El equipo contrario tiene <strong>15 segundos</strong> para dar una respuesta. Si aciertan, suman <strong>5 puntos</strong>. Si fallan, no suman ni restan.</li>
+                            </ul>
+                        </li>
+                        <li>**Comodín "Teléfono Abierto":**
+                            <ul>
+                                <li>Cada equipo tiene hasta <strong>15 usos</strong> del comodín durante todo el juego.</li>
+                                <li>Cuando es su turno y no saben la respuesta, pueden anunciar que usan el comodín.</li>
+                                <li>Tendrán <strong>1 minuto (60 segundos)</strong> para buscar la respuesta en su teléfono móvil (o un dispositivo provisto por el docente).</li>
+                                <li>Si responden correctamente usando el comodín, ganan <strong>5 puntos</strong>.</li>
+                                <li>Si no encuentran la respuesta o dan una incorrecta, la pregunta pasa al otro equipo (como en la regla 2).</li>
+                                <li>Una vez agotados los 15 usos, el botón de comodín se convertirá en un botón para "Ver Pista" (si la pregunta tiene una pista definida).</li>
+                            </ul>
+                        </li>
+                        <li>**Desempate (si es necesario):** Si al finalizar todas las preguntas hay un empate, se hace una pregunta de desempate al azar. El primer equipo que levante la mano y dé la respuesta correcta (sin comodín y en 15 segundos) gana el juego.</li>
+                    </ol>
+                </div>
+                <div class="rules-section">
+                    <h3>Ganador:</h3>
+                    <p>El equipo con la mayor cantidad de puntos al finalizar todas las preguntas.</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -226,6 +341,9 @@
         const btnStealCorrect = document.getElementById('btnStealCorrect');
         const btnStealIncorrect = document.getElementById('btnStealIncorrect');
         const btnRestartGame = document.getElementById('btnRestartGame');
+        const btnShowRules = document.getElementById('btnShowRules'); // Nuevo botón para reglas
+        const rulesModal = document.getElementById('rulesModal');     // Modal de reglas
+        const btnCloseRules = document.getElementById('btnCloseRules'); // Botón para cerrar modal
 
         // Array de preguntas con opciones y pistas
         const questions = [
@@ -389,7 +507,7 @@
                 hint: "Permiten que varias personas trabajen juntas en un mismo proyecto."
             },
             {
-                question: "¿Cuál es la capacidad de almacenamiento estándar de Google Drive?",
+                question: "¿Cuál es la capacidad de almacenamiento estándar de Google Drive? (para cuentas gratuitas)",
                 options: [
                     "a) 500 GB",
                     "b) 15 GB",
@@ -513,7 +631,7 @@
                 options: [
                     "A) Mediante fibra óptica.",
                     "B) A través de módems dial-up (por línea telefónica).",
-                    "C) Con conexiones inalámbricas Wi-Fi."
+                    "C) Conexiones inalámbricas Wi-Fi."
                 ],
                 correctAnswerIndex: 1,
                 hint: "Recuerda el sonido peculiar antes de conectarse."
@@ -861,14 +979,16 @@
             optionsDisplay.classList.add('hidden'); // Ocultar el display de opciones
             statusMessage.textContent = 'Presiona "Iniciar Juego" para comenzar.';
 
-            // Mostrar solo el botón de inicio al principio
+            // Mostrar solo el botón de inicio al principio y el de reglas
             btnStartGame.classList.remove('hidden');
+            btnShowRules.classList.remove('hidden'); // Mostrar el botón de reglas en la pantalla de inicio
+            
             btnNextQuestion.classList.add('hidden');
             btnRestartGame.classList.add('hidden'); // Ocultar botón de reiniciar
-            hideActionButtons(); // Oculta todos los botones de acción
+            hideActionButtons(); // Oculta todos los botones de acción (incluidos los comodines)
 
             // Habilitar comodines visualmente y actualizar contador
-            updateComodinButtons();
+            updateComodinButtons(); // Esta llamada se ha modificado para depender de 'questionActive'
         }
 
         // Función para iniciar el temporizador
@@ -881,7 +1001,7 @@
                 updateTimerDisplay();
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
-                    handleTimerEnd(); // Manejar el fin del temporizador
+                    handleTimerEnd(); // Manejar el fin del temporador
                 }
             }, 1000); // Actualizar cada segundo
             questionActive = true; // La pregunta está activa
@@ -912,20 +1032,20 @@
 
         // Función que se ejecuta cuando el temporizador llega a 0
         function handleTimerEnd() {
-            stopTimer(); // Detener el temporizador
+            stopTimer(); // Detener el temporador
 
             if (stealingRound) {
                 // Si el tiempo se acabó en una ronda de robo
-                statusMessage.textContent = `Tiempo terminado para el robo del Equipo ${currentTeam === 1 ? 2 : 1}.`;
+                statusMessage.innerHTML = `Tiempo terminado para el robo del Equipo ${currentTeam === 1 ? 2 : 1}.`; // Usar innerHTML
                 stealingRound = false; // Resetear la ronda de robo
                 switchTurn(); // Cambiar al siguiente turno (vuelve al equipo original)
             } else {
                 // Si el tiempo se acabó en una pregunta normal
-                statusMessage.textContent = `¡Tiempo terminado para el Equipo ${currentTeam}!`;
+                statusMessage.innerHTML = `¡Tiempo terminado para el Equipo ${currentTeam}!`; // Usar innerHTML
                 stealingRound = true; // Iniciar ronda de robo
                 // Cambiar el 'currentTeam' para que el mensaje de robo sea correcto, pero sin afectar el turno final
                 const teamToSteal = currentTeam === 1 ? 2 : 1;
-                statusMessage.textContent = `¡Equipo ${teamToSteal}, tienen 15 segundos para robar la pregunta!`;
+                statusMessage.innerHTML = `¡Equipo ${teamToSteal}, tienen 15 segundos para robar la pregunta!`; // Usar innerHTML
                 startTimer(15); // Iniciar temporizador de robo
                 showStealButtons(); // Mostrar botones de robo
             }
@@ -948,7 +1068,7 @@
             if (currentQuestionIndex >= questions.length) {
                 endGame();
             } else {
-                statusMessage.textContent = `Es el turno del Equipo ${currentTeam}. Presiona "Siguiente Pregunta".`;
+                statusMessage.innerHTML = `Es el turno del Equipo ${currentTeam}. Presiona "Siguiente Pregunta".`; // Usar innerHTML
                 btnNextQuestion.classList.remove('hidden'); // Mostrar el botón para la siguiente pregunta
             }
         }
@@ -963,9 +1083,13 @@
 
                 optionsDisplay.innerHTML = ''; // Limpiar opciones anteriores
                 if (questionData.options && questionData.options.length > 0) {
+                    // Mapear las opciones a letras (A, B, C, D)
+                    const optionLetters = ['A', 'B', 'C', 'D'];
                     questionData.options.forEach((option, index) => {
                         const optionDiv = document.createElement('div');
-                        optionDiv.textContent = option;
+                        // Asegurarse de que la opción sea solo el texto si ya tiene A) B) C) en su contenido
+                        const cleanedOption = option.startsWith(`${optionLetters[index]}) `) ? option.substring(option.indexOf(')') + 1).trim() : option;
+                        optionDiv.textContent = `${optionLetters[index]}) ${cleanedOption}`;
                         optionsDisplay.appendChild(optionDiv);
                     });
                     optionsDisplay.classList.remove('hidden');
@@ -986,6 +1110,7 @@
             btnNextQuestion.classList.add('hidden'); // Ocultar el botón de siguiente pregunta
             hideActionButtons();
             btnRestartGame.classList.remove('hidden'); // Mostrar el botón de reiniciar
+            btnShowRules.classList.remove('hidden'); // Mostrar el botón de reglas al finalizar el juego
 
             let finalMessage = "¡Juego Terminado! ";
             if (scoreEquipo1 > scoreEquipo2) {
@@ -995,7 +1120,7 @@
             } else {
                 finalMessage += `¡Es un empate! Ambos equipos con ${scoreEquipo1} puntos. 🤝`;
             }
-            statusMessage.textContent = finalMessage;
+            statusMessage.innerHTML = finalMessage; // Usar innerHTML
             gameStarted = false; // El juego ya no está activo
         }
 
@@ -1035,25 +1160,32 @@
             btnComodin1.textContent = comodin1BtnText;
             btnComodin2.textContent = comodin2BtnText;
 
-            // Ocultar el comodín del equipo que no está en turno
-            if (currentTeam === 1) {
-                btnComodin2.classList.add('hidden');
-                if (team1ComodinCount < MAX_COMODIN_USES) {
-                    btnComodin1.classList.remove('hidden', 'btn-disabled');
-                } else {
-                    btnComodin1.classList.remove('hidden');
-                    btnComodin1.classList.add('btn-disabled'); // Deshabilitar si se agotaron
-                    btnComodin1.textContent = `Ver Pista (Agotado)`; // Mostrar texto de pista
+            // Solo mostrar botones de comodín si una pregunta está activa (gameStarted y questionActive)
+            // y no estamos en una ronda de robo (ya que en robo no se usa comodín)
+            if (gameStarted && questionActive && !stealingRound) {
+                if (currentTeam === 1) {
+                    btnComodin2.classList.add('hidden'); // Asegura que el botón del otro equipo esté oculto
+                    if (team1ComodinCount < MAX_COMODIN_USES) {
+                        btnComodin1.classList.remove('hidden', 'btn-disabled');
+                    } else {
+                        btnComodin1.classList.remove('hidden'); // Mostrar, pero deshabilitado
+                        btnComodin1.classList.add('btn-disabled');
+                        btnComodin1.textContent = `Ver Pista (Agotado)`;
+                    }
+                } else { // currentTeam === 2
+                    btnComodin1.classList.add('hidden'); // Asegura que el botón del otro equipo esté oculto
+                    if (team2ComodinCount < MAX_COMODIN_USES) {
+                        btnComodin2.classList.remove('hidden', 'btn-disabled');
+                    } else {
+                        btnComodin2.classList.remove('hidden'); // Mostrar, pero deshabilitado
+                        btnComodin2.classList.add('btn-disabled');
+                        btnComodin2.textContent = `Ver Pista (Agotado)`;
+                    }
                 }
-            } else { // currentTeam === 2
+            } else {
+                // Si el juego no ha comenzado, la pregunta no está activa o es ronda de robo, ocultar ambos comodines.
                 btnComodin1.classList.add('hidden');
-                if (team2ComodinCount < MAX_COMODIN_USES) {
-                    btnComodin2.classList.remove('hidden', 'btn-disabled');
-                } else {
-                    btnComodin2.classList.remove('hidden');
-                    btnComodin2.classList.add('btn-disabled'); // Deshabilitar si se agotaron
-                    btnComodin2.textContent = `Ver Pista (Agotado)`; // Mostrar texto de pista
-                }
+                btnComodin2.classList.add('hidden');
             }
         }
 
@@ -1062,11 +1194,12 @@
         // Iniciar el juego
         btnStartGame.addEventListener('click', () => {
             gameStarted = true;
-            statusMessage.textContent = `¡El juego ha comenzado! Es el turno del Equipo ${currentTeam}. Presiona "Siguiente Pregunta".`;
+            statusMessage.innerHTML = `¡El juego ha comenzado! Es el turno del Equipo ${currentTeam}. Presiona "Siguiente Pregunta".`; // Usar innerHTML
             btnStartGame.classList.add('hidden'); // Ocultar botón de inicio
             btnNextQuestion.classList.remove('hidden'); // Mostrar botón de siguiente pregunta
-            hideActionButtons(); // Asegurarse de que otros botones estén ocultos
-            updateComodinButtons(); // Asegurar que los comodines se muestren correctamente
+            btnShowRules.classList.add('hidden'); // Ocultar el botón de reglas al iniciar el juego
+            hideActionButtons(); // Asegurarse de que otros botones estén ocultos (incluidos los comodines inicialmente)
+            // No llamar a updateComodinButtons aquí, se llamará cuando se muestre la primera pregunta.
         });
 
         // Iniciar una nueva ronda de pregunta
@@ -1075,7 +1208,7 @@
                 stopTimer(); // Detener cualquier temporizador previo
                 stealingRound = false; // Resetear el estado de robo
                 displayNextQuestion(); // Mostrar la siguiente pregunta
-                statusMessage.textContent = `¡Pregunta para el Equipo ${currentTeam}!`;
+                statusMessage.innerHTML = `¡Pregunta para el Equipo ${currentTeam}!`; // Usar innerHTML
                 startTimer(30); // Iniciar temporizador de 30 segundos
                 showActionButtonsForCurrentTeam(); // Mostrar botones de correcto/incorrecto/comodín
                 btnNextQuestion.classList.add('hidden'); // Ocultar el botón de siguiente pregunta mientras la ronda está activa
@@ -1089,10 +1222,10 @@
             stopTimer();
             if (currentTeam === 1) {
                 scoreEquipo1 += 10;
-                statusMessage.textContent = `¡Equipo 1 acertó! (+10 puntos) 🎉`;
+                statusMessage.innerHTML = `¡Equipo 1 acertó! (+10 puntos) 🎉`; // Usar innerHTML
             } else {
                 scoreEquipo2 += 10;
-                statusMessage.textContent = `¡Equipo 2 acertó! (+10 puntos) 🎉`;
+                statusMessage.innerHTML = `¡Equipo 2 acertó! (+10 puntos) 🎉`; // Usar innerHTML
             }
             updateScores();
             switchTurn(); // Cambiar al siguiente turno
@@ -1101,10 +1234,10 @@
         // Botón "Incorrecto" (presionado por el profesor si la respuesta es incorrecta o no hay respuesta)
         btnIncorrect.addEventListener('click', () => {
             stopTimer();
-            statusMessage.textContent = `¡Equipo ${currentTeam} falló! 😔`;
+            statusMessage.innerHTML = `¡Equipo ${currentTeam} falló! 😔`; // Usar innerHTML
             stealingRound = true; // Entrar en ronda de robo
             const teamToSteal = currentTeam === 1 ? 2 : 1; // El equipo que tiene la oportunidad de robar
-            statusMessage.textContent = `¡Equipo ${teamToSteal}, tienen 15 segundos para robar la pregunta!`;
+            statusMessage.innerHTML = `¡Equipo ${teamToSteal}, tienen 15 segundos para robar la pregunta!`; // Usar innerHTML
             startTimer(15); // Iniciar temporizador de 15 segundos para el robo
             showStealButtons(); // Mostrar botones de robo
         });
@@ -1115,10 +1248,10 @@
             const stealingTeam = currentTeam === 1 ? 2 : 1; // Determinar qué equipo está robando
             if (stealingTeam === 1) {
                 scoreEquipo1 += 5;
-                statusMessage.textContent = `¡Equipo 1 robó la pregunta y acertó! (+5 puntos) 👏`;
+                statusMessage.innerHTML = `¡Equipo 1 robó la pregunta y acertó! (+5 puntos) 👏`; // Usar innerHTML
             } else {
                 scoreEquipo2 += 5;
-                statusMessage.textContent = `¡Equipo 2 robó la pregunta y acertó! (+5 puntos) 👏`;
+                statusMessage.innerHTML = `¡Equipo 2 robó la pregunta y acertó! (+5 puntos) 👏`; // Usar innerHTML
             }
             updateScores();
             stealingRound = false; // Resetear estado de robo
@@ -1129,7 +1262,7 @@
         // Botón "Robo Incorrecto" (presionado por el profesor si el equipo que roba falla)
         btnStealIncorrect.addEventListener('click', () => {
             stopTimer();
-            statusMessage.textContent = `El robo del Equipo ${currentTeam === 1 ? 2 : 1} fue incorrecto. 😟`;
+            statusMessage.innerHTML = `El robo del Equipo ${currentTeam === 1 ? 2 : 1} fue incorrecto. 😟`; // Usar innerHTML
             stealingRound = false; // Resetear estado de robo
             switchTurn(); // El turno vuelve al equipo original (si falló el robo)
         });
@@ -1138,18 +1271,18 @@
         btnComodin1.addEventListener('click', () => {
             if (currentTeam === 1) {
                 if (team1ComodinCount < MAX_COMODIN_USES) {
-                    stopTimer(); // Detener el temporizador de la pregunta
+                    stopTimer(); // Detener el temporador de la pregunta
                     team1ComodinCount++; // Incrementar el contador de uso
                     updateComodinButtons(); // Actualizar el texto del botón
-                    statusMessage.textContent = `¡Equipo 1 usó el comodín! Tienen 60 segundos para buscar. ⏱️`;
+                    statusMessage.innerHTML = `¡Equipo 1 usó el comodín! Tienen 60 segundos para buscar. ⏱️`; // Usar innerHTML
                     startTimer(60); // Iniciar temporizador de comodín de 60 segundos
                     // Los botones de "Correcto" / "Incorrecto" siguen visibles para que el profesor juzgue después del comodín
                 } else {
                     // Si los comodines se agotaron, mostrar la pista
                     if (currentQuestionIndex !== -1 && questions[currentQuestionIndex].hint) {
-                        statusMessage.textContent = `¡Comodines agotados para Equipo 1! Pista: ${questions[currentQuestionIndex].hint}`;
+                        statusMessage.innerHTML = `¡Comodines agotados para <strong>Equipo 1</strong>!<br>Pista: <strong>${questions[currentQuestionIndex].hint}</strong>`; // Usar innerHTML, negrita y salto de línea
                     } else {
-                        statusMessage.textContent = `¡Comodines agotados para Equipo 1! No hay pista disponible.`;
+                        statusMessage.innerHTML = `¡Comodines agotados para <strong>Equipo 1</strong>! No hay pista disponible.`; // Usar innerHTML y negrita
                     }
                 }
             }
@@ -1159,18 +1292,18 @@
         btnComodin2.addEventListener('click', () => {
             if (currentTeam === 2) {
                 if (team2ComodinCount < MAX_COMODIN_USES) {
-                    stopTimer(); // Detener el temporizador de la pregunta
+                    stopTimer(); // Detener el temporador de la pregunta
                     team2ComodinCount++; // Incrementar el contador de uso
                     updateComodinButtons(); // Actualizar el texto del botón
-                    statusMessage.textContent = `¡Equipo 2 usó el comodín! Tienen 60 segundos para buscar. ⏱️`;
+                    statusMessage.innerHTML = `¡Equipo 2 usó el comodín! Tienen 60 segundos para buscar. ⏱️`; // Usar innerHTML
                     startTimer(60); // Iniciar temporizador de comodín de 60 segundos
                     // Los botones de "Correcto" / "Incorrecto" siguen visibles para que el profesor juzgue después del comodín
                 } else {
                     // Si los comodines se agotaron, mostrar la pista
                     if (currentQuestionIndex !== -1 && questions[currentQuestionIndex].hint) {
-                        statusMessage.textContent = `¡Comodines agotados para Equipo 2! Pista: ${questions[currentQuestionIndex].hint}`;
+                        statusMessage.innerHTML = `¡Comodines agotados para <strong>Equipo 2</strong>!<br>Pista: <strong>${questions[currentQuestionIndex].hint}</strong>`; // Usar innerHTML, negrita y salto de línea
                     } else {
-                        statusMessage.textContent = `¡Comodines agotados para Equipo 2! No hay pista disponible.`;
+                        statusMessage.innerHTML = `¡Comodines agotados para <strong>Equipo 2</strong>! No hay pista disponible.`; // Usar innerHTML y negrita
                     }
                 }
             }
@@ -1179,6 +1312,22 @@
         // Botón para reiniciar el juego
         btnRestartGame.addEventListener('click', () => {
             initializeUI();
+        });
+
+        // Event listeners para el modal de reglas
+        btnShowRules.addEventListener('click', () => {
+            rulesModal.classList.remove('hidden');
+        });
+
+        btnCloseRules.addEventListener('click', () => {
+            rulesModal.classList.add('hidden');
+        });
+
+        // Ocultar modal al hacer clic fuera de él
+        rulesModal.addEventListener('click', (event) => {
+            if (event.target === rulesModal) {
+                rulesModal.classList.add('hidden');
+            }
         });
 
         // Inicializar la interfaz de usuario cuando la página se carga
