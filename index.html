@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafío NTICX</title>
+    <!-- Tailwind CSS CDN para un estilo rápido y responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados para mejorar la estética */
+        body {
+            font-family: 'Inter', sans-serif; /* Fuente recomendada para Tailwind */
+            background-color: #f0f2f5; /* Fondo gris claro */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Ocupar toda la altura de la ventana */
+            margin: 0;
+            padding: 1rem; /* Pequeño padding general para dispositivos pequeños */
+        }
+        .game-container {
+            background-color: #ffffff;
+            border-radius: 1rem; /* Bordes redondeados */
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); /* Sombra suave */
+            padding: 2.5rem; /* Padding interno generoso */
+            width: 90%; /* Ancho responsivo */
+            max-width: 700px; /* Ancho máximo para pantallas grandes */
+            text-align: center;
+            box-sizing: border-box; /* Incluir padding y borde en el ancho */
+        }
+        .team-score {
+            font-size: 2.5rem; /* Tamaño de fuente grande para las puntuaciones */
+            font-weight: bold; /* Negrita */
+            color: #2c3e50; /* Azul oscuro */
+        }
+        .timer-display {
+            font-size: 4rem; /* Tamaño de fuente muy grande para el temporizador */
+            font-weight: bold; /* Extra negrita */
+            color: #e74c3c; /* Rojo vibrante para el temporizador */
+            margin-top: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .status-message {
+            font-size: 1.25rem; /* Tamaño de fuente legible para mensajes de estado */
+            color: #34495e; /* Gris azulado oscuro */
+            margin-bottom: 1.5rem;
+            min-height: 28px; /* Evita "Cumulative Layout Shift" al cambiar el texto */
+        }
+        .question-display {
+            background-color: #ecf0f1; /* Gris claro */
+            border-left: 5px solid #3498db; /* Borde izquierdo azul */
+            padding: 1.5rem;
+            margin-bottom: 1.5rem; /* Menor margen para hacer espacio para opciones */
+            border-radius: 0.5rem;
+            font-size: 1.3rem; /* Tamaño de fuente para la pregunta */
+            font-weight: 500; /* Seminegrita */
+            color: #2c3e50;
+            text-align: left; /* Alineación de texto a la izquierda */
+        }
+        .options-display {
+            background-color: #f7f9fb; /* Fondo más claro para las opciones */
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 0.5rem;
+            text-align: left;
+            font-size: 1.1rem;
+            color: #34495e;
+        }
+        .options-display div {
+            margin-bottom: 0.5rem;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: bold;
+            transition: all 0.2s ease-in-out; /* Transición suave para efectos hover */
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para botones */
+            display: block; /* Ocupar el ancho completo por defecto */
+            width: 100%; /* Asegura que los botones ocupen el ancho completo */
+        }
+        /* Colores de botones personalizados */
+        .btn-primary {
+            background-color: #3498db; /* Azul primario */
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9; /* Azul más oscuro al pasar el ratón */
+            transform: translateY(-2px); /* Efecto de "levantar" */
+        }
+        .btn-success {
+            background-color: #2ecc71; /* Verde esmeralda */
+            color: #ffffff;
+        }
+        .btn-success:hover {
+            background-color: #27ae60; /* Verde más oscuro */
+            transform: translateY(-2px);
+        }
+        .btn-danger {
+            background-color: #e74c3c; /* Rojo vibrante */
+            color: #ffffff;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b; /* Rojo más oscuro */
+            transform: translateY(-2px);
+        }
+        .btn-warning {
+            background-color: #f1c40f; /* Amarillo girasol */
+            color: #ffffff;
+        }
+        .btn-warning:hover {
+            background-color: #f39c12; /* Amarillo más oscuro */
+            transform: translateY(-2px);
+        }
+        /* Estilo para botones deshabilitados */
+        .btn-disabled {
+            background-color: #cccccc;
+            color: #888888;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .btn-disabled:hover {
+            transform: none; /* Sin efecto hover para deshabilitados */
+        }
+        /* Clases para ocultar/mostrar elementos */
+        .hidden {
+            display: none !important;
+        }
+        .footer-text {
+            margin-top: 2.5rem;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+    <div class="game-container">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-blue-800 mb-6">Desafío NTICX</h1>
+
+        <!-- Marcador de Puntos -->
+        <div class="flex justify-around items-center mb-8">
+            <div class="flex flex-col items-center">
+                <span class="text-xl md:text-2xl font-bold text-gray-700">Equipo 1</span>
+                <span id="scoreEquipo1" class="team-score text-blue-600">0</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <span class="text-xl md:text-2xl font-bold text-gray-700">Equipo 2</span>
+                <span id="scoreEquipo2" class="team-score text-purple-600">0</span>
+            </div>
+        </div>
+
+        <!-- Temporizador -->
+        <div id="timerDisplay" class="timer-display">00:00</div>
+
+        <!-- Pregunta Actual -->
+        <div id="questionDisplay" class="question-display hidden"></div>
+        <!-- Opciones de Respuesta -->
+        <div id="optionsDisplay" class="options-display hidden"></div>
+
+        <!-- Mensaje de Estado / Turno -->
+        <p id="statusMessage" class="status-message">Presiona "Iniciar Juego" para comenzar.</p>
+
+        <!-- Botones de Control del Juego -->
+        <div class="flex flex-col space-y-4">
+            <!-- Botón inicial para iniciar el juego -->
+            <button id="btnStartGame" class="btn btn-primary">Iniciar Juego</button>
+            <!-- Botón para pasar a la siguiente pregunta o iniciar ronda -->
+            <button id="btnNextQuestion" class="btn btn-primary hidden">Siguiente Pregunta</button>
+
+            <!-- Botones de comodín (visibles según el turno y si no se usó) -->
+            <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
+                <button id="btnComodin1" class="btn btn-warning md:w-1/2 hidden" data-team="1">Comodín Equipo 1 🃏 (15)</button>
+                <button id="btnComodin2" class="btn btn-warning md:w-1/2 hidden" data-team="2">Comodín Equipo 2 🃏 (15)</button>
+            </div>
+
+            <!-- Botones de respuesta para el equipo en turno -->
+            <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
+                <button id="btnCorrect" class="btn btn-success md:w-1/2 hidden">Correcto ✅</button>
+                <button id="btnIncorrect" class="btn btn-danger md:w-1/2 hidden">Incorrecto ❌</button>
+            </div>
+
+            <!-- Botones para el robo de pregunta (solo visibles en ronda de robo) -->
+            <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
+                <button id="btnStealCorrect" class="btn btn-success md:w-1/2 hidden">Robo Correcto ✅</button>
+                <button id="btnStealIncorrect" class="btn btn-danger md:w-1/2 hidden">Robo Incorrecto ❌</button>
+            </div>
+            <!-- Botón para reiniciar el juego al final -->
+            <button id="btnRestartGame" class="btn btn-primary hidden">Reiniciar Juego</button>
+        </div>
+
+        <!-- Pie de página con la información del autor -->
+        <div class="footer-text">
+            Pensado & Desarrollado por Agustin del Canto . Profesor NTICX . 2025
+        </div>
+    </div>
+
+    <script>
+        // Variables de estado del juego
+        let scoreEquipo1 = 0;
+        let scoreEquipo2 = 0;
+        let currentTeam = 1; // 1 para Equipo 1, 2 para Equipo 2
+        const MAX_COMODIN_USES = 15; // Máximo de usos del comodín por equipo
+        let team1ComodinCount = 0;
+        let team2ComodinCount = 0;
+        let timerInterval; // Variable para almacenar el ID del intervalo del temporizador
+        let timeLeft = 0; // Tiempo restante en el temporizador
+        let gameStarted = false; // Indica si el juego ha comenzado
+        let questionActive = false; // Indica si hay una pregunta activa con temporizador
+        let stealingRound = false; // Indica si se está en la ronda de robo
+        let currentQuestionIndex = -1; // Índice de la pregunta actual (-1 antes de empezar)
+
+        // Referencias a elementos del DOM
+        const scoreDisplay1 = document.getElementById('scoreEquipo1');
+        const scoreDisplay2 = document.getElementById('scoreEquipo2');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const questionDisplay = document.getElementById('questionDisplay'); // Elemento para la pregunta
+        const optionsDisplay = document.getElementById('optionsDisplay');   // Elemento para las opciones
+        const statusMessage = document.getElementById('statusMessage');
+
+        const btnStartGame = document.getElementById('btnStartGame');
+        const btnNextQuestion = document.getElementById('btnNextQuestion');
+        const btnComodin1 = document.getElementById('btnComodin1');
+        const btnComodin2 = document.getElementById('btnComodin2');
+        const btnCorrect = document.getElementById('btnCorrect');
+        const btnIncorrect = document.getElementById('btnIncorrect');
+        const btnStealCorrect = document.getElementById('btnStealCorrect');
+        const btnStealIncorrect = document.getElementById('btnStealIncorrect');
+        const btnRestartGame = document.getElementById('btnRestartGame');
+
+        // Array de preguntas con opciones y pistas
+        const questions = [
+            // Módulo 1: Alfabetización Informática / Introducción a las NTICx
+            {
+                question: "¿Qué diferencia fundamental existe entre hardware y software?",
+                options: [
+                    "A) Hardware es la parte lógica y software la física.",
+                    "B) Hardware son los componentes físicos y software los programas y datos.",
+                    "C) No hay diferencia, son el mismo concepto."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Uno lo puedes tocar, el otro no."
+            },
+            {
+                question: "Define qué es la 'brecha digital' y nombra una de sus principales causas.",
+                hint: "Piensa en el acceso y uso de la tecnología en diferentes grupos de personas."
+            },
+            {
+                question: "¿Qué componentes básicos forman un sistema informático? Nombra al menos tres.",
+                hint: "Necesitas el cerebro, la memoria y algo para mostrar resultados."
+            },
+            {
+                question: "¿Cuál es la función principal de un sistema operativo? Da dos ejemplos de sistemas operativos.",
+                hint: "Es el 'cerebro' que hace funcionar la computadora."
+            },
+            {
+                question: "Explica la relación entre los términos 'TIC' (Tecnologías de la Información y Comunicación) y 'NTICx' (Nuevas Tecnologías de la Información y la Conectividad).",
+                hint: "NTICx es una evolución o enfoque más actual de las TIC."
+            },
+            {
+                question: "¿Qué es un algoritmo? Menciona un ejemplo cotidiano de su aplicación.",
+                hint: "Piensa en una secuencia de pasos para resolver un problema, como una receta de cocina."
+            },
+            {
+                question: "¿Cuál es la importancia de la computación en la sociedad actual?",
+                hint: "Afecta casi todos los aspectos de nuestra vida, desde el trabajo hasta el ocio."
+            },
+            {
+                question: "¿Qué es un dato y qué es información? ¿Cómo se relacionan?",
+                options: [
+                    "A) Son sinónimos, significan lo mismo.",
+                    "B) Dato es un valor crudo, información es un dato procesado con significado.",
+                    "C) Información es un valor crudo, dato es un dato procesado."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Uno es la materia prima, el otro es el producto final con sentido."
+            },
+            {
+                question: "Nombra un tipo de memoria de almacenamiento principal y un tipo de almacenamiento secundario.",
+                hint: "Uno es volátil (RAM), el otro guarda los datos de forma permanente (disco duro)."
+            },
+            {
+                question: "¿Qué significa 'interactividad' en el contexto de las NTICx?",
+                options: [
+                    "A) La capacidad de un sistema para funcionar automáticamente.",
+                    "B) La capacidad de un usuario para comunicarse bidireccionalmente con un sistema o programa.",
+                    "C) La velocidad de conexión a internet."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Implica una 'conversación' entre el usuario y la tecnología."
+            },
+            {
+                question: "¿Quién fue Steve Jobs?",
+                options: [
+                    "A) Un famoso músico de jazz.",
+                    "B) El co-fundador de Microsoft.",
+                    "C) El co-fundador de Apple Inc."
+                ],
+                correctAnswerIndex: 2,
+                hint: "Piensa en la manzana mordida."
+            },
+            {
+                question: "¿Quién es Bill Gates?",
+                options: [
+                    "A) El creador de Apple",
+                    "B) El co-fundador de Microsoft",
+                    "C) El inventor de Internet",
+                    "D) Un famoso cantante"
+                ],
+                correctAnswerIndex: 1,
+                hint: "Asociado a Windows."
+            },
+            {
+                question: "¿A qué se dedica principalmente la empresa Intel?",
+                options: [
+                    "A) Fabricación de videojuegos.",
+                    "B) Desarrollo de sistemas operativos.",
+                    "C) Fabricación de microprocesadores y otros componentes de hardware."
+                ],
+                correctAnswerIndex: 2,
+                hint: "Es conocida por sus 'cerebros' para computadoras."
+            },
+            {
+                question: "Nombra cuatro sistemas operativos diferentes.",
+                hint: "Piensa en computadoras y móviles: Windows, macOS, Linux, Android, iOS."
+            },
+            {
+                question: "Nombra un programa de licencia libre y uno pago:",
+                options: [
+                    "A) LibreOffice (libre) y Microsoft Office (pago)",
+                    "B) Photoshop (libre) y GIMP (pago)",
+                    "C) Windows (libre) y Linux (pago)"
+                ],
+                correctAnswerIndex: 0,
+                hint: "Uno te permite modificar el código, el otro no."
+            },
+            {
+                question: "¿Qué computadora necesito para jugar? Nombra tres componentes básicos.",
+                hint: "Piensa en la memoria, el cerebro gráfico y la pantalla."
+            },
+            {
+                question: "¿Qué es más grande, 1 Terabyte (TB) o 1 Megabyte (MB)?",
+                options: [
+                    "A) 1 Megabyte (MB)",
+                    "B) Son iguales",
+                    "C) 1 Terabyte (TB)"
+                ],
+                correctAnswerIndex: 2,
+                hint: "Piensa en la capacidad de almacenamiento de un disco duro moderno."
+            },
+            {
+                question: "Nombra al menos tres tipos de computadoras diferentes.",
+                hint: "Pueden ser por tamaño o por función: de escritorio, portátil, servidor, supercomputadora."
+            },
+            {
+                question: "Nombra dos periféricos de entrada y dos de salida.",
+                hint: "Entrada: Teclado, mouse. Salida: Monitor, impresora."
+            },
+            {
+                question: "¿Qué es Free Fire?",
+                options: [
+                    "a) Un editor de video",
+                    "b) Un videojuego de disparos en línea",
+                    "c) Una red social",
+                    "d) Un servicio de mensajería"
+                ],
+                correctAnswerIndex: 1, // b)
+                hint: "Es un juego muy popular en móviles."
+            },
+            {
+                question: "¿Qué es la tecnología?",
+                options: [
+                    "a) Cualquier cosa relacionada con la electricidad",
+                    "b) El uso de conocimientos y herramientas para resolver problemas",
+                    "c) Una marca de celulares",
+                    "d) Un programa de computadora"
+                ],
+                correctAnswerIndex: 1, // b)
+                hint: "Va más allá de los aparatos electrónicos."
+            },
+            {
+                question: "¿Qué son las herramientas colaborativas?",
+                options: [
+                    "a) Aplicaciones para editar fotos",
+                    "b) Plataformas para trabajar en grupo, compartir y editar contenidos",
+                    "c) Juegos en red",
+                    "d) Páginas para comprar productos"
+                ],
+                correctAnswerIndex: 1, // b)
+                hint: "Permiten que varias personas trabajen juntas en un mismo proyecto."
+            },
+            {
+                question: "¿Cuál es la capacidad de almacenamiento estándar de Google Drive?",
+                options: [
+                    "a) 500 GB",
+                    "b) 15 GB",
+                    "c) 1 TB",
+                    "d) 64 GB"
+                ],
+                correctAnswerIndex: 1, // b)
+                hint: "Es el espacio gratuito que obtienes."
+            },
+            {
+                question: "¿Cuál de los siguientes es un periférico de entrada?",
+                options: [
+                    "a) Monitor",
+                    "b) Impresora",
+                    "c) Teclado",
+                    "d) Parlante"
+                ],
+                correctAnswerIndex: 2, // c)
+                hint: "Sirve para escribir o dar comandos."
+            },
+            {
+                question: "¿Cuál de los siguientes es un periférico de salida?",
+                options: [
+                    "a) Mouse",
+                    "b) Auriculares",
+                    "c) Webcam",
+                    "d) Joystick"
+                ],
+                correctAnswerIndex: 1, // b)
+                hint: "A través de ellos escuchas el sonido."
+            },
+            // Módulo 2: Alfabetización en Redes / Redes Digitales
+            {
+                question: "Menciona dos tipos de redes según su alcance geográfico:",
+                options: [
+                    "A) Redes sociales y redes de contactos.",
+                    "B) LAN (Red de Área Local) y WAN (Red de Área Extensa).",
+                    "C) Redes de pesca y redes de voleibol."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Una es para distancias cortas (ej. una casa), otra para grandes distancias (ej. países)."
+            },
+            {
+                question: "¿Qué es el protocolo TCP/IP?",
+                options: [
+                    "A) Un software antivirus.",
+                    "B) Un conjunto de reglas que permiten a las computadoras comunicarse en una red.",
+                    "C) Un tipo de cable de red."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Es el 'idioma' universal de Internet."
+            },
+            {
+                question: "¿Cuál es la diferencia principal entre una Intranet y una Extranet?",
+                hint: "Una es interna de una organización, la otra extiende el acceso a socios externos."
+            },
+            {
+                question: "¿Qué es una topología de red? Nombra un ejemplo de topología de red común.",
+                hint: "Se refiere a la forma en que los dispositivos están conectados físicamente o lógicamente."
+            },
+            {
+                question: "¿Qué función cumple un router en una red informática?",
+                options: [
+                    "A) Imprimir documentos.",
+                    "B) Proteger la computadora de virus.",
+                    "C) Dirigir el tráfico de datos entre diferentes redes."
+                ],
+                correctAnswerIndex: 2,
+                hint: "Es como el 'controlador de tráfico' de tu internet."
+            },
+            {
+                question: "¿Qué es la 'nube' o 'cloud computing'?",
+                options: [
+                    "A) Un nuevo tipo de hardware para computadoras.",
+                    "B) Almacenar y acceder a datos y programas a través de Internet, en lugar de hacerlo en el disco duro local.",
+                    "C) Un servicio meteorológico avanzado."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Te permite acceder a tus archivos desde cualquier lugar con conexión."
+            },
+            {
+                question: "¿Qué es una dirección IP? ¿Para qué sirve?",
+                options: [
+                    "A) El nombre de usuario de una cuenta de correo.",
+                    "B) Un identificador numérico único para cada dispositivo en una red.",
+                    "C) La contraseña de una red Wi-Fi."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Es como la 'dirección postal' de tu dispositivo en internet."
+            },
+            {
+                question: "¿Qué diferencia hay entre Wi-Fi y Ethernet en una conexión de red?",
+                hint: "Uno usa cables, el otro no."
+            },
+            {
+                question: "¿Qué significa que una comunicación es 'inalámbrica'?",
+                options: [
+                    "A) Que es muy rápida.",
+                    "B) Que utiliza cables para la conexión.",
+                    "C) Que no necesita cables para transmitir información."
+                ],
+                correctAnswerIndex: 2,
+                hint: "Piensa en Wi-Fi o Bluetooth."
+            },
+            {
+                question: "¿Qué es un servidor y un cliente en el contexto de una red?",
+                hint: "Uno 'sirve' información o recursos, el otro los 'solicita'."
+            },
+            {
+                question: "¿Cuál fue el primer buscador de internet ampliamente conocido?",
+                options: [
+                    "A) Google",
+                    "B) Yahoo!",
+                    "C) Archie"
+                ],
+                correctAnswerIndex: 2,
+                hint: "Es anterior a los gigantes actuales y servía para buscar archivos FTP."
+            },
+            {
+                question: "¿Cómo se conectaba primeramente internet a los usuarios domésticos?",
+                options: [
+                    "A) Mediante fibra óptica.",
+                    "B) A través de módems dial-up (por línea telefónica).",
+                    "C) Con conexiones inalámbricas Wi-Fi."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Recuerda el sonido peculiar antes de conectarse."
+            },
+            {
+                question: "¿A quién pertenece la plataforma de correo electrónico Gmail?",
+                options: [
+                    "A) Microsoft",
+                    "B) Apple",
+                    "C) Google"
+                ],
+                correctAnswerIndex: 2,
+                hint: "Empieza con 'G' y su logo es multicolor."
+            },
+            {
+                question: "¿Qué diferencia fundamental hay entre Gmail y WhatsApp en cuanto a su propósito?",
+                options: [
+                    "A) Ambos son para videoconferencias.",
+                    "B) Gmail es para correo electrónico y WhatsApp para mensajería instantánea.",
+                    "C) Gmail es para redes sociales y WhatsApp para llamadas."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Uno es más formal y para mensajes largos, el otro es para comunicación rápida."
+            },
+            {
+                question: "¿El WiFi es una conexión satelital?",
+                options: [
+                    "a) Sí",
+                    "b) No, es una red inalámbrica local",
+                    "c) Solo en teléfonos",
+                    "d) Depende del proveedor"
+                ],
+                correctAnswerIndex: 1, // b)
+                hint: "Piensa en cómo te conectas en casa o en una cafetería."
+            },
+            {
+                question: "¿Quién creó Instagram?",
+                options: [
+                    "a) Elon Musk",
+                    "b) Bill Gates",
+                    "c) Kevin Systrom y Mike Krieger",
+                    "d) Mark Zuckerberg"
+                ],
+                correctAnswerIndex: 2, // c)
+                hint: "Fueron los fundadores originales, antes de la compra por Facebook."
+            },
+            {
+                question: "¿Elon Musk es CEO de...?",
+                options: [
+                    "a) Meta",
+                    "b) Amazon",
+                    "c) Tesla y SpaceX",
+                    "d) Apple"
+                ],
+                correctAnswerIndex: 2, // c)
+                hint: "Piensa en autos eléctricos y cohetes."
+            },
+            {
+                question: "¿Qué es un iPod?",
+                options: [
+                    "a) Una tableta",
+                    "b) Un reproductor de música digital",
+                    "c) Un modelo de celular",
+                    "d) Un asistente virtual"
+                ],
+                correctAnswerIndex: 1, // b)
+                hint: "Un dispositivo icónico de Apple para escuchar música, antes del iPhone."
+            },
+            {
+                question: "¿Qué es Pixar?",
+                options: [
+                    "a) Una red social",
+                    "b) Una empresa de videojuegos",
+                    "c) Un estudio de animación",
+                    "d) Un antivirus"
+                ],
+                correctAnswerIndex: 2, // c)
+                hint: "Famoso por películas como Toy Story."
+            },
+            {
+                question: "¿Qué empresa desarrolló el sistema operativo Android?",
+                options: [
+                    "a) Apple",
+                    "b) Microsoft",
+                    "c) Google",
+                    "d) Huawei"
+                ],
+                correctAnswerIndex: 2, // c)
+                hint: "La misma empresa detrás del buscador más grande."
+            },
+            {
+                question: "¿Cuál es la función de un navegador web?",
+                options: [
+                    "a) Crear documentos",
+                    "b) Conectarse a redes privadas",
+                    "c) Acceder y visualizar páginas de internet",
+                    "d) Almacenar archivos"
+                ],
+                correctAnswerIndex: 2, // c)
+                hint: "Lo usas para visitar sitios web."
+            },
+            {
+                question: "¿Cuál de los siguientes es un software de presentación?",
+                options: [
+                    "a) Word",
+                    "b) Excel",
+                    "c) PowerPoint",
+                    "d) Paint"
+                ],
+                correctAnswerIndex: 2, // c)
+                hint: "Se usa para crear diapositivas."
+            },
+            {
+                question: "¿Qué es el 'streaming'?",
+                options: [
+                    "a) Compartir fotos",
+                    "b) Ver contenido en vivo o bajo demanda por internet",
+                    "c) Descargar música",
+                    "d) Comprar productos online"
+                ],
+                correctAnswerIndex: 1, // b)
+                hint: "Como Netflix o YouTube."
+            },
+            {
+                question: "¿Cuál de estas plataformas es usada para clases virtuales?",
+                options: [
+                    "a) WhatsApp",
+                    "b) TikTok",
+                    "c) Google Classroom",
+                    "d) Netflix"
+                ],
+                correctAnswerIndex: 2, // c)
+                hint: "Es una herramienta educativa de Google."
+            },
+            {
+                question: "¿Qué es un archivo PDF?",
+                options: [
+                    "a) Una hoja impresa",
+                    "b) Un archivo de texto plano",
+                    "c) Un tipo de imagen",
+                    "d) Un formato de documento portátil"
+                ],
+                correctAnswerIndex: 3, // d)
+                hint: "Se ve igual en cualquier dispositivo."
+            },
+            {
+                question: "¿Qué es la ciberseguridad?",
+                options: [
+                    "a) Seguridad física en escuelas",
+                    "b) Un antivirus específico",
+                    "c) La protección de datos y sistemas digitales frente a amenazas",
+                    "d) Protección en redes sociales"
+                ],
+                correctAnswerIndex: 2, // c)
+                hint: "Trata de mantenerte seguro en el mundo digital."
+            },
+            {
+                question: "¿Qué red social pertenece a Meta (ex Facebook Inc.)?",
+                options: [
+                    "a) Twitter",
+                    "b) Instagram",
+                    "c) Snapchat",
+                    "d) Telegram"
+                ],
+                correctAnswerIndex: 1, // b)
+                hint: "Es muy popular para compartir fotos y videos."
+            },
+            {
+                question: "¿Qué es un código QR?",
+                options: [
+                    "a) Un programa para hackear",
+                    "b) Un tipo de archivo",
+                    "c) Un código gráfico que se escanea con el celular para acceder a información",
+                    "d) Una clave de WiFi"
+                ],
+                correctAnswerIndex: 2, // c)
+                hint: "Son esos cuadrados que escaneas con la cámara del teléfono."
+            },
+            {
+                question: "¿Qué plataforma se usa comúnmente para videollamadas?",
+                options: [
+                    "a) Canva",
+                    "b) Zoom",
+                    "c) Photoshop",
+                    "d) Spotify"
+                ],
+                correctAnswerIndex: 1, // b)
+                hint: "Se volvió muy usada para reuniones online."
+            },
+            {
+                question: "¿Cuál es el buscador más usado del mundo?",
+                options: [
+                    "a) Bing",
+                    "b) Yahoo",
+                    "c) DuckDuckGo",
+                    "d) Google"
+                ],
+                correctAnswerIndex: 3, // d)
+                hint: "Su nombre es sinónimo de 'buscar en internet'."
+            },
+            {
+                question: "¿Qué red social es más conocida por sus videos cortos?",
+                options: [
+                    "a) LinkedIn",
+                    "b) Twitter",
+                    "c) TikTok",
+                    "d) Pinterest"
+                ],
+                correctAnswerIndex: 2, // c)
+                hint: "Muy popular entre los jóvenes."
+            },
+            {
+                question: "¿Qué significa 'URL'?",
+                options: [
+                    "a) Unidad de Registro Legal",
+                    "b) Universal Research Link",
+                    "c) Uniform Resource Locator (Localizador uniforme de recursos)",
+                    "d) Unificación de Redes Locales"
+                ],
+                correctAnswerIndex: 2, // c)
+                hint: "Es la dirección de una página web."
+            },
+            // Módulo 3: Manejo de Información / Ciudadanía Digital / Uso Responsable
+            {
+                question: "¿Para qué sirve la verificación en dos pasos (o doble factor de autenticación)?",
+                options: [
+                    "A) Para hacer las contraseñas más cortas.",
+                    "B) Para agregar una capa extra de seguridad al acceder a una cuenta.",
+                    "C) Para cambiar el idioma de una aplicación."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Es como una segunda 'llave' para tu cuenta."
+            },
+            {
+                question: "¿Qué se conoce como 'fake news' o noticias falsas?",
+                options: [
+                    "A) Noticias con información verificada y precisa.",
+                    "B) Contenido noticioso creado deliberadamente para engañar o desinformar.",
+                    "C) Noticias que aparecen solo en periódicos impresos."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Son informaciones que circulan mucho, pero que no son verdad."
+            },
+            {
+                question: "¿Qué es la 'Netiqueta'?",
+                options: [
+                    "A) Un tipo de software para editar videos.",
+                    "B) Las normas de buena conducta y respeto en la comunicación online.",
+                    "C) Una etiqueta de red para cables."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Son las 'reglas de cortesía' en Internet."
+            },
+            {
+                question: "Nombra dos estrategias para evaluar la fiabilidad de la información en Internet:",
+                options: [
+                    "A) Leer solo el título y confiar en la primera que aparezca.",
+                    "B) Verificar la fuente y buscar información en otras páginas confiables.",
+                    "C) Compartir rápidamente sin leer todo el contenido."
+                ],
+                correctAnswerIndex: 1,
+                hint: "No todo lo que ves online es cierto. Investiga un poco."
+            },
+            {
+                question: "¿Qué es el 'phishing'?",
+                options: [
+                    "A) Un deporte acuático.",
+                    "B) Un tipo de ciberataque que busca obtener información sensible (contraseñas, datos bancarios) suplantando una entidad legítima.",
+                    "C) Un programa para diseñar páginas web."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Cuidado con los correos y mensajes que parecen de tu banco o de un servicio conocido, pero son extraños."
+            },
+            {
+                question: "Explica qué se entiende por 'huella digital' o 'identidad digital':",
+                options: [
+                    "A) La marca de un dedo en la pantalla de un dispositivo.",
+                    "B) El rastro de datos y actividad que dejamos al usar Internet y dispositivos digitales.",
+                    "C) Un sistema de reconocimiento de huellas dactilares."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Todo lo que haces online deja una marca, como pasos en la arena."
+            },
+            {
+                question: "Da un ejemplo de comunicación sincrónica:",
+                options: [
+                    "A) Un correo electrónico.",
+                    "B) Una videoconferencia o un chat en vivo.",
+                    "C) Un foro de discusión."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Sucede 'en tiempo real'."
+            },
+            {
+                question: "¿Qué son los derechos digitales?",
+                options: [
+                    "A) Normas para usar el teléfono celular en clase.",
+                    "B) Los derechos que tenemos como ciudadanos en el entorno digital (privacidad, libertad de expresión, acceso a la información, etc.).",
+                    "C) Las leyes que regulan la compra y venta de software."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Son como tus derechos humanos, pero en Internet."
+            },
+            {
+                question: "¿Qué es la 'infoxicación'?",
+                options: [
+                    "A) La capacidad de procesar mucha información muy rápido.",
+                    "B) La sobrecarga de información que dificulta comprender y tomar decisiones.",
+                    "C) Un nuevo tipo de virus informático."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Demasiada información puede ser dañina, como una intoxicación."
+            },
+            {
+                question: "¿Por qué es crucial proteger la privacidad de nuestros datos personales en línea?",
+                options: [
+                    "A) Para evitar que nuestro teléfono se llene de virus.",
+                    "B) Para prevenir el robo de identidad, el fraude o el uso indebido de nuestra información.",
+                    "C) Solo es importante si eres una persona famosa."
+                ],
+                correctAnswerIndex: 1,
+                hint: "Tus datos son valiosos y pueden ser usados en tu contra si caen en malas manos."
+            }
+        ];
+
+        // Función para configurar la interfaz de usuario al inicio o reiniciar
+        function initializeUI() {
+            scoreEquipo1 = 0;
+            scoreEquipo2 = 0;
+            currentTeam = 1; // Reiniciar al Equipo 1
+            team1ComodinCount = 0; // Reiniciar contador de comodines
+            team2ComodinCount = 0; // Reiniciar contador de comodines
+            gameStarted = false;
+            questionActive = false;
+            stealingRound = false;
+            currentQuestionIndex = -1; // Resetear el índice de la pregunta
+            clearInterval(timerInterval); // Limpiar cualquier temporizador activo
+
+            scoreDisplay1.textContent = scoreEquipo1;
+            scoreDisplay2.textContent = scoreEquipo2;
+            timerDisplay.textContent = '00:00';
+            questionDisplay.textContent = ''; // Limpiar la pregunta mostrada
+            questionDisplay.classList.add('hidden'); // Ocultar el display de la pregunta
+            optionsDisplay.innerHTML = ''; // Limpiar las opciones
+            optionsDisplay.classList.add('hidden'); // Ocultar el display de opciones
+            statusMessage.textContent = 'Presiona "Iniciar Juego" para comenzar.';
+
+            // Mostrar solo el botón de inicio al principio
+            btnStartGame.classList.remove('hidden');
+            btnNextQuestion.classList.add('hidden');
+            btnRestartGame.classList.add('hidden'); // Ocultar botón de reiniciar
+            hideActionButtons(); // Oculta todos los botones de acción
+
+            // Habilitar comodines visualmente y actualizar contador
+            updateComodinButtons();
+        }
+
+        // Función para iniciar el temporizador
+        function startTimer(duration) {
+            timeLeft = duration;
+            updateTimerDisplay();
+            clearInterval(timerInterval); // Asegura que solo haya un temporizador corriendo
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimerEnd(); // Manejar el fin del temporizador
+                }
+            }, 1000); // Actualizar cada segundo
+            questionActive = true; // La pregunta está activa
+
+            // Ocultar el botón "Siguiente Pregunta" mientras el temporizador corre
+            btnNextQuestion.classList.add('hidden');
+            // Mostrar los botones de acción relevantes
+            showActionButtonsForCurrentTeam();
+        }
+
+        // Función para detener el temporizador
+        function stopTimer() {
+            clearInterval(timerInterval);
+            questionActive = false;
+            hideActionButtons(); // Ocultar botones de acción después de detener el temporizador
+            // Mostrar "Siguiente Pregunta" a menos que sea un fallo de robo (ya se cambia de turno)
+            if (!stealingRound || (stealingRound && timeLeft > 0)) { // Si no es ronda de robo o si el robo no terminó por tiempo
+                btnNextQuestion.classList.remove('hidden');
+            }
+        }
+
+        // Función para actualizar la visualización del temporizador
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Función que se ejecuta cuando el temporizador llega a 0
+        function handleTimerEnd() {
+            stopTimer(); // Detener el temporizador
+
+            if (stealingRound) {
+                // Si el tiempo se acabó en una ronda de robo
+                statusMessage.textContent = `Tiempo terminado para el robo del Equipo ${currentTeam === 1 ? 2 : 1}.`;
+                stealingRound = false; // Resetear la ronda de robo
+                switchTurn(); // Cambiar al siguiente turno (vuelve al equipo original)
+            } else {
+                // Si el tiempo se acabó en una pregunta normal
+                statusMessage.textContent = `¡Tiempo terminado para el Equipo ${currentTeam}!`;
+                stealingRound = true; // Iniciar ronda de robo
+                // Cambiar el 'currentTeam' para que el mensaje de robo sea correcto, pero sin afectar el turno final
+                const teamToSteal = currentTeam === 1 ? 2 : 1;
+                statusMessage.textContent = `¡Equipo ${teamToSteal}, tienen 15 segundos para robar la pregunta!`;
+                startTimer(15); // Iniciar temporizador de robo
+                showStealButtons(); // Mostrar botones de robo
+            }
+        }
+
+        // Función para actualizar las puntuaciones en la interfaz
+        function updateScores() {
+            scoreDisplay1.textContent = scoreEquipo1;
+            scoreDisplay2.textContent = scoreEquipo2;
+        }
+
+        // Función para cambiar de turno entre equipos
+        function switchTurn() {
+            currentTeam = currentTeam === 1 ? 2 : 1; // Alternar equipo
+            hideActionButtons();
+            questionDisplay.classList.add('hidden'); // Ocultar la pregunta
+            optionsDisplay.classList.add('hidden'); // Ocultar las opciones
+
+            // Verificar si hay más preguntas o si el juego terminó
+            if (currentQuestionIndex >= questions.length) {
+                endGame();
+            } else {
+                statusMessage.textContent = `Es el turno del Equipo ${currentTeam}. Presiona "Siguiente Pregunta".`;
+                btnNextQuestion.classList.remove('hidden'); // Mostrar el botón para la siguiente pregunta
+            }
+        }
+
+        // Función para mostrar la siguiente pregunta y sus opciones
+        function displayNextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                const questionData = questions[currentQuestionIndex];
+                questionDisplay.textContent = `Pregunta ${currentQuestionIndex + 1}: ${questionData.question}`;
+                questionDisplay.classList.remove('hidden');
+
+                optionsDisplay.innerHTML = ''; // Limpiar opciones anteriores
+                if (questionData.options && questionData.options.length > 0) {
+                    questionData.options.forEach((option, index) => {
+                        const optionDiv = document.createElement('div');
+                        optionDiv.textContent = option;
+                        optionsDisplay.appendChild(optionDiv);
+                    });
+                    optionsDisplay.classList.remove('hidden');
+                } else {
+                    optionsDisplay.classList.add('hidden'); // Ocultar si no hay opciones
+                }
+            } else {
+                // Todas las preguntas han sido respondidas
+                endGame();
+            }
+        }
+
+        // Función para terminar el juego
+        function endGame() {
+            stopTimer();
+            questionDisplay.classList.add('hidden'); // Ocultar la pregunta
+            optionsDisplay.classList.add('hidden'); // Ocultar las opciones
+            btnNextQuestion.classList.add('hidden'); // Ocultar el botón de siguiente pregunta
+            hideActionButtons();
+            btnRestartGame.classList.remove('hidden'); // Mostrar el botón de reiniciar
+
+            let finalMessage = "¡Juego Terminado! ";
+            if (scoreEquipo1 > scoreEquipo2) {
+                finalMessage += `¡El Equipo 1 es el ganador con ${scoreEquipo1} puntos! 🎉`;
+            } else if (scoreEquipo2 > scoreEquipo1) {
+                finalMessage += `¡El Equipo 2 es el ganador con ${scoreEquipo2} puntos! 🎉`;
+            } else {
+                finalMessage += `¡Es un empate! Ambos equipos con ${scoreEquipo1} puntos. 🤝`;
+            }
+            statusMessage.textContent = finalMessage;
+            gameStarted = false; // El juego ya no está activo
+        }
+
+        // Funciones para mostrar/ocultar botones según el estado del juego
+        function showActionButtonsForCurrentTeam() {
+            btnCorrect.classList.remove('hidden');
+            btnIncorrect.classList.remove('hidden');
+            updateComodinButtons(); // Asegurarse de que el estado del comodín sea el correcto
+        }
+
+        function showStealButtons() {
+            // Ocultar botones de acción normal
+            btnCorrect.classList.add('hidden');
+            btnIncorrect.classList.add('hidden');
+            btnComodin1.classList.add('hidden');
+            btnComodin2.classList.add('hidden');
+            // Mostrar botones de robo
+            btnStealCorrect.classList.remove('hidden');
+            btnStealIncorrect.classList.remove('hidden');
+        }
+
+        function hideActionButtons() {
+            // Ocultar todos los botones de acción
+            btnCorrect.classList.add('hidden');
+            btnIncorrect.classList.add('hidden');
+            btnComodin1.classList.add('hidden');
+            btnComodin2.classList.add('hidden');
+            btnStealCorrect.classList.add('hidden');
+            btnStealIncorrect.classList.add('hidden');
+        }
+
+        // Función para actualizar el estado visual y texto de los botones de comodín
+        function updateComodinButtons() {
+            const comodin1BtnText = `Comodín Equipo 1 🃏 (${MAX_COMODIN_USES - team1ComodinCount})`;
+            const comodin2BtnText = `Comodín Equipo 2 🃏 (${MAX_COMODIN_USES - team2ComodinCount})`;
+
+            btnComodin1.textContent = comodin1BtnText;
+            btnComodin2.textContent = comodin2BtnText;
+
+            // Ocultar el comodín del equipo que no está en turno
+            if (currentTeam === 1) {
+                btnComodin2.classList.add('hidden');
+                if (team1ComodinCount < MAX_COMODIN_USES) {
+                    btnComodin1.classList.remove('hidden', 'btn-disabled');
+                } else {
+                    btnComodin1.classList.remove('hidden');
+                    btnComodin1.classList.add('btn-disabled'); // Deshabilitar si se agotaron
+                    btnComodin1.textContent = `Ver Pista (Agotado)`; // Mostrar texto de pista
+                }
+            } else { // currentTeam === 2
+                btnComodin1.classList.add('hidden');
+                if (team2ComodinCount < MAX_COMODIN_USES) {
+                    btnComodin2.classList.remove('hidden', 'btn-disabled');
+                } else {
+                    btnComodin2.classList.remove('hidden');
+                    btnComodin2.classList.add('btn-disabled'); // Deshabilitar si se agotaron
+                    btnComodin2.textContent = `Ver Pista (Agotado)`; // Mostrar texto de pista
+                }
+            }
+        }
+
+        // --- Event Listeners (Manejadores de eventos de los botones) ---
+
+        // Iniciar el juego
+        btnStartGame.addEventListener('click', () => {
+            gameStarted = true;
+            statusMessage.textContent = `¡El juego ha comenzado! Es el turno del Equipo ${currentTeam}. Presiona "Siguiente Pregunta".`;
+            btnStartGame.classList.add('hidden'); // Ocultar botón de inicio
+            btnNextQuestion.classList.remove('hidden'); // Mostrar botón de siguiente pregunta
+            hideActionButtons(); // Asegurarse de que otros botones estén ocultos
+            updateComodinButtons(); // Asegurar que los comodines se muestren correctamente
+        });
+
+        // Iniciar una nueva ronda de pregunta
+        btnNextQuestion.addEventListener('click', () => {
+            if (currentQuestionIndex < questions.length - 1) {
+                stopTimer(); // Detener cualquier temporizador previo
+                stealingRound = false; // Resetear el estado de robo
+                displayNextQuestion(); // Mostrar la siguiente pregunta
+                statusMessage.textContent = `¡Pregunta para el Equipo ${currentTeam}!`;
+                startTimer(30); // Iniciar temporizador de 30 segundos
+                showActionButtonsForCurrentTeam(); // Mostrar botones de correcto/incorrecto/comodín
+                btnNextQuestion.classList.add('hidden'); // Ocultar el botón de siguiente pregunta mientras la ronda está activa
+            } else {
+                endGame(); // Si ya no hay más preguntas
+            }
+        });
+
+        // Botón "Correcto" (presionado por el profesor si la respuesta es correcta)
+        btnCorrect.addEventListener('click', () => {
+            stopTimer();
+            if (currentTeam === 1) {
+                scoreEquipo1 += 10;
+                statusMessage.textContent = `¡Equipo 1 acertó! (+10 puntos) 🎉`;
+            } else {
+                scoreEquipo2 += 10;
+                statusMessage.textContent = `¡Equipo 2 acertó! (+10 puntos) 🎉`;
+            }
+            updateScores();
+            switchTurn(); // Cambiar al siguiente turno
+        });
+
+        // Botón "Incorrecto" (presionado por el profesor si la respuesta es incorrecta o no hay respuesta)
+        btnIncorrect.addEventListener('click', () => {
+            stopTimer();
+            statusMessage.textContent = `¡Equipo ${currentTeam} falló! 😔`;
+            stealingRound = true; // Entrar en ronda de robo
+            const teamToSteal = currentTeam === 1 ? 2 : 1; // El equipo que tiene la oportunidad de robar
+            statusMessage.textContent = `¡Equipo ${teamToSteal}, tienen 15 segundos para robar la pregunta!`;
+            startTimer(15); // Iniciar temporizador de 15 segundos para el robo
+            showStealButtons(); // Mostrar botones de robo
+        });
+
+        // Botón "Robo Correcto" (presionado por el profesor si el equipo que roba acierta)
+        btnStealCorrect.addEventListener('click', () => {
+            stopTimer();
+            const stealingTeam = currentTeam === 1 ? 2 : 1; // Determinar qué equipo está robando
+            if (stealingTeam === 1) {
+                scoreEquipo1 += 5;
+                statusMessage.textContent = `¡Equipo 1 robó la pregunta y acertó! (+5 puntos) 👏`;
+            } else {
+                scoreEquipo2 += 5;
+                statusMessage.textContent = `¡Equipo 2 robó la pregunta y acertó! (+5 puntos) 👏`;
+            }
+            updateScores();
+            stealingRound = false; // Resetear estado de robo
+            currentTeam = stealingTeam; // Asegurarse de que el currentTeam sea el que robó
+            switchTurn();
+        });
+
+        // Botón "Robo Incorrecto" (presionado por el profesor si el equipo que roba falla)
+        btnStealIncorrect.addEventListener('click', () => {
+            stopTimer();
+            statusMessage.textContent = `El robo del Equipo ${currentTeam === 1 ? 2 : 1} fue incorrecto. 😟`;
+            stealingRound = false; // Resetear estado de robo
+            switchTurn(); // El turno vuelve al equipo original (si falló el robo)
+        });
+
+        // Botón de Comodín para Equipo 1
+        btnComodin1.addEventListener('click', () => {
+            if (currentTeam === 1) {
+                if (team1ComodinCount < MAX_COMODIN_USES) {
+                    stopTimer(); // Detener el temporizador de la pregunta
+                    team1ComodinCount++; // Incrementar el contador de uso
+                    updateComodinButtons(); // Actualizar el texto del botón
+                    statusMessage.textContent = `¡Equipo 1 usó el comodín! Tienen 60 segundos para buscar. ⏱️`;
+                    startTimer(60); // Iniciar temporizador de comodín de 60 segundos
+                    // Los botones de "Correcto" / "Incorrecto" siguen visibles para que el profesor juzgue después del comodín
+                } else {
+                    // Si los comodines se agotaron, mostrar la pista
+                    if (currentQuestionIndex !== -1 && questions[currentQuestionIndex].hint) {
+                        statusMessage.textContent = `¡Comodines agotados para Equipo 1! Pista: ${questions[currentQuestionIndex].hint}`;
+                    } else {
+                        statusMessage.textContent = `¡Comodines agotados para Equipo 1! No hay pista disponible.`;
+                    }
+                }
+            }
+        });
+
+        // Botón de Comodín para Equipo 2
+        btnComodin2.addEventListener('click', () => {
+            if (currentTeam === 2) {
+                if (team2ComodinCount < MAX_COMODIN_USES) {
+                    stopTimer(); // Detener el temporizador de la pregunta
+                    team2ComodinCount++; // Incrementar el contador de uso
+                    updateComodinButtons(); // Actualizar el texto del botón
+                    statusMessage.textContent = `¡Equipo 2 usó el comodín! Tienen 60 segundos para buscar. ⏱️`;
+                    startTimer(60); // Iniciar temporizador de comodín de 60 segundos
+                    // Los botones de "Correcto" / "Incorrecto" siguen visibles para que el profesor juzgue después del comodín
+                } else {
+                    // Si los comodines se agotaron, mostrar la pista
+                    if (currentQuestionIndex !== -1 && questions[currentQuestionIndex].hint) {
+                        statusMessage.textContent = `¡Comodines agotados para Equipo 2! Pista: ${questions[currentQuestionIndex].hint}`;
+                    } else {
+                        statusMessage.textContent = `¡Comodines agotados para Equipo 2! No hay pista disponible.`;
+                    }
+                }
+            }
+        });
+
+        // Botón para reiniciar el juego
+        btnRestartGame.addEventListener('click', () => {
+            initializeUI();
+        });
+
+        // Inicializar la interfaz de usuario cuando la página se carga
+        window.onload = initializeUI;
+    </script>
+</body>
+</html>
