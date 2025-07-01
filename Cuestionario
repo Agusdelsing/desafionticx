@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario NTICx</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f8ff;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        h1, h2 {
+            color: #0056b3;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .btn {
+            background-color: #e7f1ff;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            padding: 15px;
+            color: #0056b3;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s, transform 0.2s;
+        }
+
+        .btn:hover:not([disabled]) {
+            background-color: #cce0ff;
+            transform: scale(1.02);
+        }
+
+        .btn.correct {
+            background-color: #28a745;
+            color: white;
+            border-color: #218838;
+        }
+
+        .btn.incorrect {
+            background-color: #dc3545;
+            color: white;
+            border-color: #c82333;
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .next-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto 0;
+            transition: background-color 0.3s;
+        }
+
+        .next-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        #results-container p {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .reflection ul {
+            list-style-type: '👉';
+            padding-left: 20px;
+        }
+
+        .reflection li {
+            padding-left: 10px;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cuestionario NTICx</h1>
+        <div id="quiz-container">
+            <h2 id="question">Aquí va la pregunta</h2>
+            <div id="answer-buttons" class="btn-grid"></div>
+            <button id="next-btn" class="next-btn hide">Siguiente</button>
+        </div>
+        <div id="results-container" class="hide">
+            <h2>¡Cuestionario Terminado!</h2>
+            <p id="score-text">Tu puntaje es: 0%</p>
+            <div class="reflection">
+                <h3>Preguntas para Reflexionar</h3>
+                <ul>
+                    <li>¿Qué palabras del cuestionario te resultaron familiares? ¿Cuáles no?</li>
+                    <li>¿Con cuáles de estas tecnologías interactuás a diario?</li>
+                    <li>¿Qué usos le das a la tecnología en tu vida personal o escolar?</li>
+                    <li>¿Qué te gustaría aprender o hacer en esta materia?</li>
+                    <li>¿Qué impacto pensás que tienen las TIC en la sociedad actual?</li>
+                </ul>
+            </div>
+            <button onclick="location.reload()" class="next-btn">Volver a Intentar</button>
+        </div>
+    </div>
+
+    <script>
+        // --- REFERENCIAS ---
+        const questionContainer = document.getElementById('quiz-container');
+        const questionElement = document.getElementById('question');
+        const answerButtonsElement = document.getElementById('answer-buttons');
+        const nextButton = document.getElementById('next-btn');
+        const resultsContainer = document.getElementById('results-container');
+        const scoreText = document.getElementById('score-text');
+
+        // --- VARIABLES DEL JUEGO ---
+        let shuffledQuestions, currentQuestionIndex;
+        let score = 0;
+
+        // --- PREGUNTAS ---
+        const questions = [
+            {
+                question: '1. ¿Qué significa la sigla TIC?',
+                answers: [
+                    { text: 'Tecnologías de la Información y Comunicación', correct: true },
+                    { text: 'Técnicas de Integración y Conectividad', correct: false },
+                    { text: 'Tratamiento Integral de Computadoras', correct: false },
+                    { text: 'Telecomunicaciones, Internet y Computadoras', correct: false }
+                ]
+            },
+            {
+                question: '2. ¿Cuál de los siguientes es un ejemplo de dispositivo de entrada?',
+                answers: [
+                    { text: 'Impresora', correct: false },
+                    { text: 'Monitor', correct: false },
+                    { text: 'Teclado', correct: true },
+                    { text: 'Parlantes', correct: false }
+                ]
+            },
+            {
+                question: '3. ¿Qué es el "hardware" en una computadora?',
+                answers: [
+                    { text: 'Los programas y aplicaciones', correct: false },
+                    { text: 'La parte física y tangible', correct: true },
+                    { text: 'Los datos almacenados', correct: false },
+                    { text: 'La conexión a internet', correct: false }
+                ]
+            },
+            {
+                question: '4. ¿Qué es el "software"?',
+                answers: [
+                    { text: 'Los componentes físicos de una computadora', correct: false },
+                    { text: 'La memoria RAM', correct: false },
+                    { text: 'Los programas y aplicaciones que se ejecutan en una computadora', correct: true },
+                    { text: 'El hardware de red', correct: false }
+                ]
+            },
+            {
+                question: '5. ¿Qué tipo de software es un sistema operativo (ej. Windows, macOS)?',
+                answers: [
+                    { text: 'Software de aplicación', correct: false },
+                    { text: 'Software de programación', correct: false },
+                    { text: 'Software de sistema', correct: true },
+                    { text: 'Software de diseño', correct: false }
+                ]
+            },
+            {
+                question: '6. ¿Qué función principal tiene un navegador web (ej. Chrome, Firefox)?',
+                answers: [
+                    { text: 'Procesar textos', correct: false },
+                    { text: 'Editar imágenes', correct: false },
+                    { text: 'Acceder e interactuar con sitios web', correct: true },
+                    { text: 'Gestionar archivos del sistema', correct: false }
+                ]
+            },
+            {
+                question: '7. ¿Qué es una red de computadoras?',
+                answers: [
+                    { text: 'Un solo equipo muy potente', correct: false },
+                    { text: 'Un grupo de computadoras conectadas para compartir recursos', correct: true },
+                    { text: 'Un programa para dibujar', correct: false },
+                    { text: 'Una base de datos', correct: false }
+                ]
+            },
+            {
+                question: '8. ¿Cuál es la función principal de Internet?',
+                answers: [
+                    { text: 'Almacenar documentos físicos', correct: false },
+                    { text: 'Comunicar y compartir información a nivel mundial', correct: true },
+                    { text: 'Reproducir música offline', correct: false },
+                    { text: 'Controlar dispositivos del hogar', correct: false }
+                ]
+            },
+            {
+                question: '9. ¿Qué es una dirección IP?',
+                answers: [
+                    { text: 'Un programa para editar fotos', correct: false },
+                    { text: 'Un identificador único para un dispositivo en una red', correct: true },
+                    { text: 'Un tipo de cable de red', correct: false },
+                    { text: 'Una aplicación de mensajería', correct: false }
+                ]
+            },
+            {
+                question: '10. ¿Qué se entiende por "nube" o "cloud computing"?',
+                answers: [
+                    { text: 'Almacenar información en un disco duro externo', correct: false },
+                    { text: 'Utilizar servicios y almacenar datos a través de Internet, en servidores remotos', correct: true },
+                    { text: 'Conectar dos computadoras con un cable USB', correct: false },
+                    { text: 'Una forma de programar software', correct: false }
+                ]
+            },
+            {
+                question: '11. ¿Cuál de estos es un motor de búsqueda?',
+                answers: [
+                    { text: 'Microsoft Word', correct: false },
+                    { text: 'Google', correct: true },
+                    { text: 'Adobe Photoshop', correct: false },
+                    { text: 'Mozilla Firefox', correct: false }
+                ]
+            },
+            {
+                question: '12. ¿Qué significa URL?',
+                answers: [
+                    { text: 'Universal Resource Link', correct: false },
+                    { text: 'Uniform Resource Locator', correct: true },
+                    { text: 'User Remote Login', correct: false },
+                    { text: 'Unified Resource Line', correct: false }
+                ]
+            },
+            {
+                question: '13. ¿Qué es un virus informático?',
+                answers: [
+                    { text: 'Un programa que ayuda a limpiar la computadora', correct: false },
+                    { text: 'Un tipo de antivirus', correct: false },
+                    { text: 'Un software malicioso que daña o altera el funcionamiento de un sistema', correct: true },
+                    { text: 'Un componente de hardware dañado', correct: false }
+                ]
+            },
+            {
+                question: '14. ¿Para qué sirve un firewall (cortafuegos)?',
+                answers: [
+                    { text: 'Para aumentar la velocidad de internet', correct: false },
+                    { text: 'Para proteger una red o sistema de accesos no autorizados', correct: true },
+                    { text: 'Para imprimir documentos en red', correct: false },
+                    { text: 'Para organizar archivos en la nube', correct: false }
+                ]
+            },
+            {
+                question: '15. ¿Qué es el phishing?',
+                answers: [
+                    { text: 'Una técnica de pesca deportiva', correct: false },
+                    { text: 'Un tipo de ataque informático que busca obtener información sensible (ej. contraseñas) de forma engañosa', correct: true },
+                    { text: 'Un software de edición de audio', correct: false },
+                    { text: 'Un método para optimizar la batería del celular', correct: false }
+                ]
+            },
+            {
+                question: '16. ¿Qué es una VPN?',
+                answers: [
+                    { text: 'Virtual Private Network', correct: true },
+                    { text: 'Very Personal Node', correct: false },
+                    { text: 'Video Processing Network', correct: false },
+                    { text: 'Volatile Public Network', correct: false }
+                ]
+            },
+            {
+                question: '17. ¿Cuál es el propósito principal del correo electrónico?',
+                answers: [
+                    { text: 'Jugar videojuegos online', correct: false },
+                    { text: 'Enviar y recibir mensajes digitales', correct: true },
+                    { text: 'Guardar copias de seguridad', correct: false },
+                    { text: 'Diseñar páginas web', correct: false }
+                ]
+            },
+            {
+                question: '18. ¿Qué significa "backup" en informática?',
+                answers: [
+                    { text: 'Apagar el equipo', correct: false },
+                    { text: 'Hacer una copia de seguridad de los datos', correct: true },
+                    { text: 'Restaurar el sistema a un punto anterior', correct: false },
+                    { text: 'Instalar un nuevo programa', correct: false }
+                ]
+            },
+            {
+                question: '19. ¿Qué es un "pixel"?',
+                answers: [
+                    { text: 'Una unidad de medida de tiempo', correct: false },
+                    { text: 'El punto más pequeño de una imagen digital', correct: true },
+                    { text: 'Un tipo de virus informático', correct: false },
+                    { text: 'Un componente de hardware de audio', correct: false }
+                ]
+            },
+            {
+                question: '20. ¿Qué es el streaming de video?',
+                answers: [
+                    { text: 'Descargar videos completos antes de verlos', correct: false },
+                    { text: 'Ver videos en tiempo real a través de internet sin descargarlos completamente', correct: true },
+                    { text: 'Convertir videos a diferentes formatos', correct: false },
+                    { text: 'Grabar videos desde una webcam', correct: false }
+                ]
+            },
+            {
+                question: '21. ¿Qué es un algoritmo en informática?',
+                answers: [
+                    { text: 'Un tipo de hardware', correct: false },
+                    { text: 'Una secuencia de pasos lógicos para resolver un problema', correct: true },
+                    { text: 'Un error de software', correct: false },
+                    { text: 'Un lenguaje de programación', correct: false }
+                ]
+            },
+            {
+                question: '22. ¿Qué es la "Inteligencia Artificial" (IA)?',
+                answers: [
+                    { text: 'Un tipo de virus informático muy avanzado', correct: false },
+                    { text: 'La capacidad de las máquinas de imitar la inteligencia humana', correct: true },
+                    { text: 'Un sistema operativo para robots', correct: false },
+                    { text: 'Una nueva forma de conectar dispositivos a internet', correct: false }
+                ]
+            },
+            {
+                question: '23. ¿Qué es el Big Data?',
+                answers: [
+                    { text: 'Archivos de texto muy grandes', correct: false },
+                    { text: 'Grandes volúmenes de datos que requieren herramientas especiales para su procesamiento', correct: true },
+                    { text: 'Una base de datos pequeña', correct: false },
+                    { text: 'Un tipo de conexión a internet lenta', correct: false }
+                ]
+            },
+            {
+                question: '24. ¿Cuál de estas es una medida de seguridad informática?',
+                answers: [
+                    { text: 'No usar contraseñas', correct: false },
+                    { text: 'Utilizar contraseñas fuertes y cambiarlas regularmente', correct: true },
+                    { text: 'Compartir la información personal en línea', correct: false },
+                    { text: 'Descargar archivos de fuentes desconocidas', correct: false }
+                ]
+            },
+            {
+                question: '25. ¿Qué es la "huella digital" en el contexto de internet?',
+                answers: [
+                    { text: 'La marca de un dedo en la pantalla', correct: false },
+                    { text: 'El rastro de datos que dejas al usar internet', correct: true },
+                    { text: 'Un sistema de seguridad biométrico', correct: false },
+                    { text: 'Un tipo de escáner', correct: false }
+                ]
+            },
+            {
+                question: '26. ¿Qué es el e-commerce?',
+                answers: [
+                    { text: 'Educación a distancia', correct: false },
+                    { text: 'Comercio electrónico (compra y venta de productos o servicios online)', correct: true },
+                    { text: 'Envío de correos electrónicos masivos', correct: false },
+                    { text: 'Desarrollo de software', correct: false }
+                ]
+            },
+            {
+                question: '27. ¿Qué es un blog?',
+                answers: [
+                    { text: 'Una red social para gamers', correct: false },
+                    { text: 'Un sitio web donde se publican artículos o entradas de forma cronológica', correct: true },
+                    { text: 'Un programa para crear gráficos 3D', correct: false },
+                    { text: 'Un tipo de virus informático', correct: false }
+                ]
+            },
+            {
+                question: '28. ¿Qué significa "responsividad" en diseño web?',
+                answers: [
+                    { text: 'Que la página web carga muy rápido', correct: false },
+                    { text: 'Que la página web se adapta a diferentes tamaños de pantalla (móvil, tablet, PC)', correct: true },
+                    { text: 'Que la página web responde a comandos de voz', correct: false },
+                    { text: 'Que la página web es muy colorida', correct: false }
+                ]
+            },
+            {
+                question: '29. ¿Qué es la realidad virtual (VR)?',
+                answers: [
+                    { text: 'Un tipo de videojuego antiguo', correct: false },
+                    { text: 'Una simulación de un entorno tridimensional que se puede explorar e interactuar', correct: true },
+                    { text: 'Un sistema operativo para computadoras viejas', correct: false },
+                    { text: 'Una técnica de edición de video', correct: false }
+                ]
+            },
+            {
+                question: '30. ¿Qué es la realidad aumentada (AR)?',
+                answers: [
+                    { text: 'Un programa para dibujar en 3D', correct: false },
+                    { text: 'Una tecnología que superpone elementos virtuales al mundo real a través de una pantalla', correct: true },
+                    { text: 'Un tipo de sonido envolvente', correct: false },
+                    { text: 'Una impresora de alta resolución', correct: false }
+                ]
+            },
+            {
+                question: '31. ¿Qué es un código QR?',
+                answers: [
+                    { text: 'Un tipo de algoritmo criptográfico', correct: false },
+                    { text: 'Un código de barras bidimensional que almacena información y se puede escanear', correct: true },
+                    { text: 'Un lenguaje de programación para robots', correct: false },
+                    { text: 'Un dispositivo de almacenamiento de datos', correct: false }
+                ]
+            },
+            {
+                question: '32. ¿Qué es la ciberseguridad?',
+                answers: [
+                    { text: 'La seguridad de los edificios con cámaras de vigilancia', correct: false },
+                    { text: 'La protección de sistemas, redes y datos de ataques digitales', correct: true },
+                    { text: 'El estudio del comportamiento de los usuarios en internet', correct: false },
+                    { text: 'El diseño de hardware de computadoras', correct: false }
+                ]
+            },
+            {
+                question: '33. ¿Qué es la "obsolescencia programada"?',
+                answers: [
+                    { text: 'Cuando un producto deja de funcionar por accidente', correct: false },
+                    { text: 'La vida útil limitada de un producto, diseñada desde su fabricación', correct: true },
+                    { text: 'La actualización constante de software', correct: false },
+                    { text: 'La capacidad de un software para adaptarse a nuevos sistemas', correct: false }
+                ]
+            },
+            {
+                question: '34. ¿Qué es un podcast?',
+                answers: [
+                    { text: 'Un programa de radio grabado que se puede escuchar a demanda', correct: true },
+                    { text: 'Un tipo de software de dibujo vectorial', correct: false },
+                    { text: 'Una red social de solo texto', correct: false },
+                    { text: 'Un dispositivo para cargar el celular', correct: false }
+                ]
+            },
+            {
+                question: '35. ¿Qué es un "influencer" en redes sociales?',
+                answers: [
+                    { text: 'Una persona que solo ve contenido', correct: false },
+                    { text: 'Alguien con la capacidad de influir en las decisiones de compra de otros debido a su autoridad, conocimiento, posición o relación con su audiencia', correct: true },
+                    { text: 'Un tipo de programa de edición de video', correct: false },
+                    { text: 'Un bot que genera comentarios automáticamente', correct: false }
+                ]
+            },
+            {
+                question: '36. ¿Qué es el "pharming"?',
+                answers: [
+                    { text: 'Una actividad agrícola digital', correct: false },
+                    { text: 'Un tipo de ciberataque que redirige a los usuarios a sitios web falsos', correct: true },
+                    { text: 'La creación de granjas de servidores', correct: false },
+                    { text: 'Un programa para optimizar el rendimiento de la PC', correct: false }
+                ]
+            },
+            {
+                question: '37. ¿Qué es la "brecha digital"?',
+                answers: [
+                    { text: 'Un hueco en la pantalla del celular', correct: false },
+                    { text: 'La desigualdad en el acceso, uso o impacto de las TIC entre diferentes grupos de personas', correct: true },
+                    { text: 'Un tipo de falla en la conexión a internet', correct: false },
+                    { text: 'Una herramienta para reparar software', correct: false }
+                ]
+            },
+            {
+                question: '38. ¿Qué es la "gamificación"?',
+                answers: [
+                    { text: 'Convertir un juego en una actividad seria', correct: false },
+                    { text: 'Aplicar elementos de juegos en contextos no lúdicos para motivar o educar', correct: true },
+                    { text: 'Diseñar videojuegos para propósitos comerciales', correct: false },
+                    { text: 'El estudio del impacto de los videojuegos en la sociedad', correct: false }
+                ]
+            },
+            {
+                question: '39. ¿Qué significa "IoT" (Internet de las Cosas)?',
+                answers: [
+                    { text: 'Internet para Objetos Teóricos', correct: false },
+                    { text: 'La interconexión de objetos cotidianos con internet, permitiéndoles enviar y recibir datos', correct: true },
+                    { text: 'Un protocolo de comunicación entre computadoras viejas', correct: false },
+                    { text: 'Una nueva forma de cargar dispositivos móviles', correct: false }
+                ]
+            },
+            {
+                question: '40. ¿Qué es la programación?',
+                answers: [
+                    { text: 'Escribir textos en un procesador de palabras', correct: false },
+                    { text: 'Crear series de instrucciones para que una computadora realice tareas específicas', correct: true },
+                    { text: 'El estudio de la historia de la computación', correct: false },
+                    { text: 'El uso de aplicaciones de oficina', correct: false }
+                ]
+            }
+        ];
+
+        // --- EVENTOS ---
+        nextButton.addEventListener('click', () => {
+            currentQuestionIndex++;
+            setNextQuestion();
+        });
+
+        // --- FUNCIONES ---
+        function startGame() {
+            score = 0;
+            resultsContainer.classList.add('hide');
+            questionContainer.classList.remove('hide');
+            shuffledQuestions = questions.sort(() => Math.random() - .5); // Mezcla las preguntas
+            currentQuestionIndex = 0;
+            setNextQuestion();
+        }
+
+        function setNextQuestion() {
+            resetState();
+            if (currentQuestionIndex < questions.length) {
+                showQuestion(shuffledQuestions[currentQuestionIndex]);
+            } else {
+                showResults();
+            }
+        }
+
+        function showQuestion(question) {
+            questionElement.innerText = question.question; // Muestra la pregunta
+            question.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.innerText = answer.text;
+                button.classList.add('btn');
+                if (answer.correct) {
+                    button.dataset.correct = answer.correct;
+                }
+                button.addEventListener('click', selectAnswer);
+                answerButtonsElement.appendChild(button);
+            });
+        }
+
+        function resetState() {
+            clearStatusClass(document.body);
+            nextButton.classList.add('hide');
+            while (answerButtonsElement.firstChild) {
+                answerButtonsElement.removeChild(answerButtonsElement.firstChild);
+            }
+        }
+
+        function selectAnswer(e) {
+            const selectedButton = e.target;
+            const correct = selectedButton.dataset.correct === 'true';
+
+            if (correct) {
+                score++;
+            }
+
+            setStatusClass(selectedButton, correct);
+            Array.from(answerButtonsElement.children).forEach(button => {
+                if (button.dataset.correct === 'true') {
+                    setStatusClass(button, true);
+                }
+                button.disabled = true; // Deshabilita todos los botones después de una selección
+            });
+
+            nextButton.classList.remove('hide'); // Muestra el botón de "Siguiente"
+        }
+
+        function setStatusClass(element, correct) {
+            clearStatusClass(element);
+            if (correct) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('incorrect');
+            }
+        }
+
+        function clearStatusClass(element) {
+            element.classList.remove('correct');
+            element.classList.remove('incorrect');
+        }
+
+        function showResults() {
+            questionContainer.classList.add('hide');
+            resultsContainer.classList.remove('hide');
+            const percentage = Math.round((score / questions.length) * 100);
+            scoreText.innerText = `Respondiste correctamente el ${percentage}% de las preguntas (${score} de ${questions.length}).`;
+        }
+
+        // --- INICIAR ---
+        startGame();
+    </script>
+</body>
+</html>
