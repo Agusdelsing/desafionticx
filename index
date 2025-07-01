@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenidos a NTICx</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f8ff; /* Azul claro */
+            color: #333; /* Gris oscuro */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center; /* Centrar todo el texto */
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px; /* Ancho máximo para el contenido */
+        }
+
+        h1 {
+            color: #0056b3; /* Azul más oscuro para el título */
+            font-size: 2.5em; /* Tamaño de fuente más grande */
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.2em; /* Tamaño de fuente para el subtítulo */
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column; /* Botones uno debajo del otro */
+            gap: 15px; /* Espacio entre botones */
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            background-color: #007bff; /* Azul primario para los botones */
+            color: white;
+            border: none;
+            border-radius: 8px; /* Bordes más redondeados */
+            padding: 15px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-decoration: none; /* Quitar subrayado del enlace */
+            display: inline-block; /* Permitir padding y margin */
+        }
+
+        .btn:hover {
+            background-color: #0056b3; /* Azul más oscuro al pasar el mouse */
+            transform: translateY(-2px); /* Pequeño efecto de elevación */
+        }
+
+        .footer-text {
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>BIENVENIDOS A NTICx</h1>
+        <p>NUEVAS TECNOLOGÍAS DE LA INFORMACIÓN Y LA CONECTIVIDAD</p>
+
+        <div class="btn-container">
+            <a href="cuestionario.html" class="btn">CUESTIONARIO INICIAL</a>
+            <a href="juego.html" class="btn">JUEGOS</a>
+        </div>
+
+        <p class="footer-text">Profesor Agustín Del Canto NTICx 2025</p>
+    </div>
+</body>
+</html>
